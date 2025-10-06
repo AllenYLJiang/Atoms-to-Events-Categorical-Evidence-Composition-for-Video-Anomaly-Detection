@@ -1,0 +1,10 @@
+torch>=2.2
+torchvision
+opencv-python
+numpy
+tqdm
+pandas
+pyyaml
+open_clip_torch
+transformers
+decord

@@ -1,0 +1,16 @@
+# Example config (edit or pass CLI flags)
+atoms:
+  # Canonical 'event atoms' (can add synonyms in ontology.py)
+  classes: [explosion, fighting, shooting, abuse, riot, car_accident]
+
+clip:
+  # See src/embeddings/clip_backend.py for available models.
+  model_name: 'ViT-L/14'
+#  model_name: 'ViT-B-32-quickgelu'
+#  pretrained: 'laion400m_e32'
+
+pipeline:
+  fps: 1
+  window: 20     # S_l, max distance for segment accumulation
+  delta: 0.6     # boundary threshold (learnable in trainer if you wish)
+  kappa: 8.0     # boundary steepness
