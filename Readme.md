@@ -1,7 +1,8 @@
 # Anomaly-Atoms (Prototype)
 
-End-to-end **prototype** of the atom-based anomaly pipeline you described.
 **In essence, we transform atoms from being regarded by VLMs as "relevant" to be with clear logical roles**
+
+End-to-end **prototype** of the atom-based anomaly pipeline you described.
 
 It implements:
 
