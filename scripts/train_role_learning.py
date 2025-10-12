@@ -149,7 +149,7 @@ def main():
     ckpt_path = "/path/to/role_learner_multi.pt"  # or role_learner.pt
     state = torch.load(ckpt_path, map_location="cpu")
 
-    # If your model uses the reparameterization (theta_* present):
+    # model uses the reparameterization (theta_* present):
     theta_dir = state["theta_dir"]  # (C, E)
     theta_ind = state["theta_ind"]  # (C, E)
     theta_ctr = state["theta_ctr"]  # (C, E)
