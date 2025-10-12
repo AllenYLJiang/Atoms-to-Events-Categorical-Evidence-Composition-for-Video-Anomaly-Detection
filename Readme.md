@@ -1,5 +1,7 @@
 # Anomaly-Atoms (Prototype)
 
+**VLM only knows that a list of atoms are relevant to the abnormal event in a video, we leverage role learning in this project to determine the roles of relevant atoms.**
+
 **In essence, we transform atoms from being regarded by VLMs as "relevant" to be with clear logical roles**
 
 End-to-end **prototype** of the atom-based anomaly pipeline you described.
@@ -69,6 +71,15 @@ Format of output boundary.pt → per-frame boundary probabilities
 ```bash
 python scripts/train_role_learning.py \  --manifest_csv runs/manifest.csv --epochs 60 --topk 10 --freeze_bias_epochs 5 
 ```
+Note: in runs/, there are folders each of which has the same name of a video (except suffix), in each folder there are two files: 
+
+1. trainpack.pt: dict {'pbar': tensor with shape T x C, T denotes the number of frames in current video, C denotes the number of all atoms, each entry denotes the presence score of an atom in a frame with reference to video segment, 'labels': shape T} 
+
+2. video_event_labels.csv: DataFrame with dimension (1+N), the first element is the name of a video (except suffix), the following dimensions are one-hot coding of N abnormal events 
+
+Format of input manifest.csv: DataFrame, each row has two columns, the first column is the directory runs/video_name, the second column is the directory runs/video_name/video_event_labels.csv 
+
+Format of output: \rho_dir, \rho_ind denoting the roles of all atoms 
 
 Artifacts:
 - `runs/demo/presence.pt` – T×C frame presence.
