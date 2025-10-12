@@ -50,6 +50,21 @@ Format of input --qwen_json: a dict, each key is the directory of one frame, eac
 
 In current moment, VLM only knows that these atoms are relevant to the event, and waits for train_role_learning.py to determine their roles. 
 
+Format of output seg_presence.pt — segment-weighted atom presence (seg_presence.pt is a segment-aware, post-processed version of presence.pt) 
+
+Format of output trainpack.pt — bundle for the trainer
+
+{
+  "pbar":  <Tensor (T, C)>,   # exactly the tensor saved in seg_presence.pt
+  "labels": <Tensor (T,)>      # same as labels.pt
+}
+
+Format of output labels.pt — frame labels provided by input 
+
+Format of output presence.pt → raw per-frame atom scores 
+
+Format of output boundary.pt → per-frame boundary probabilities  
+
 3) **Train role learning** (supervises video-level labels for 6 events):
 ```bash
 python scripts/train_role_learning.py \  --manifest_csv runs/manifest.csv --epochs 60 --topk 10 --freeze_bias_epochs 5 
