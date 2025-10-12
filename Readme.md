@@ -42,11 +42,11 @@ python scripts/run_pipeline.py \  --frames_root data/frames \  --labels_csv data
 ```
 Note: the function of this part is to use video segments that each frame belongs to to determine the presence scores of atoms in each frame. 
 
-Format of --frames_root: a directory of subfolders, the name of each subfolder is the name of a video (except suffix). Within each subfolder are the frames. 
+Format of input --frames_root: a directory of subfolders, the name of each subfolder is the name of a video (except suffix). Within each subfolder are the frames. 
 
-Format of --labels_csv: a DataFrame, each row has two columns, the first column is the directory of a frame, the second column is 0/1 label determined by CGSGM. 
+Format of input --labels_csv: a DataFrame, each row has two columns, the first column is the directory of a frame, the second column is 0/1 label determined by CGSGM. 
 
-Format of --qwen_json: a dict, each key is the directory of one frame, each value is a sub-dict with two keys-"atoms" and "raw", they value of "atoms" is the list of all atoms that VLM thinks relevant to the abnormal event in current frame, the value of "raw" is the concatenation of strings in the list in "atoms", with a start symbol "ATOMS: ".
+Format of input --qwen_json: a dict, each key is the directory of one frame, each value is a sub-dict with two keys-"atoms" and "raw", they value of "atoms" is the list of all atoms that VLM thinks relevant to the abnormal event in current frame, the value of "raw" is the concatenation of strings in the list in "atoms", with a start symbol "ATOMS: ".
 
 In current moment, VLM only knows that these atoms are relevant to the event, and waits for train_role_learning.py to determine their roles. 
 
