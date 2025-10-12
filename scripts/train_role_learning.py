@@ -145,6 +145,18 @@ def main():
     out_dir = os.path.dirname(items[0][0])
     torch.save(model.state_dict(), os.path.join(out_dir, "role_learner_multi.pt"))
     print("Saved:", os.path.join(out_dir, "role_learner_multi.pt"))
+    
+    ckpt_path = "/path/to/role_learner_multi.pt"  # or role_learner.pt
+    state = torch.load(ckpt_path, map_location="cpu")
+
+    # If your model uses the reparameterization (theta_* present):
+    theta_dir = state["theta_dir"]  # (C, E)
+    theta_ind = state["theta_ind"]  # (C, E)
+    theta_ctr = state["theta_ctr"]  # (C, E)
+
+    rho_dir = torch.sigmoid(theta_dir).numpy()  # (C, E)
+    rho_ind = torch.sigmoid(theta_ind).numpy()  # (C, E)
+    rho_ctr = torch.sigmoid(theta_ctr).numpy()  # (C, E)
 
 if __name__ == "__main__":
     main()
