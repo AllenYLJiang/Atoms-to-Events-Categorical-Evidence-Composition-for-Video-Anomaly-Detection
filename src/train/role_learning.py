@@ -72,27 +72,37 @@ class RoleLearner(nn.Module):
         D = 1.0 - torch.exp(log_prod)                       # (T, E)
 
         # ==== INDIRECT: I_e = 1 - Π_{i<j} (1 - rho_i rho_j p_i p_j) ====
-        # Vectorized pairwise (use mask to drop non-candidates early)
-        p = pbar.clamp(0,1)
-        rho = rho_ind.clamp(0,1)
-        # (T, C, 1) and (T, 1, C)
-        p_i = p.unsqueeze(2); p_j = p.unsqueeze(1)          # (T, C, C)
-        # (C, 1, E) and (1, C, E)
-        r_i = rho.unsqueeze(1); r_j = rho.unsqueeze(0)      # (C, C, E)
+        p = pbar.clamp(0,1)                         # (T, C)
+        rho = rho_ind.clamp(0,1)                    # (C, E)
+        
+        # Basic pair tensors
+        p_i = p.unsqueeze(2)                        # (T, C, 1)
+        p_j = p.unsqueeze(1)                        # (T, 1, C)
+        r_i = rho.unsqueeze(1)                      # (C, 1, E)
+        r_j = rho.unsqueeze(0)                      # (1, C, E)
+        
+        # Raw term for all pairs/events
         term = 1.0 - (p_i * p_j).unsqueeze(3) * (r_i * r_j).unsqueeze(0)   # (T, C, C, E)
-
-        # mask i>=j and non-candidates (at least one of the pair must be candidate)
-        tri = torch.triu(torch.ones(C, C, dtype=torch.bool, device=dev), diagonal=1)  # (C, C)
-        pair_mask = tri.unsqueeze(0).unsqueeze(3).expand(T, -1, -1, self.E)          # (T, C, C, E)
-        # candidate: if both atoms not candidates for e, drop pair
-        cm = candidate_mask.to(dev).bool() if candidate_mask is not None else torch.ones(C, self.E, dtype=torch.bool, device=dev)
-        # both-not-candidate mask
-        both_not = (~cm.unsqueeze(0)) & (~cm.unsqueeze(1))   # (C, C, E)
-        both_not = both_not.unsqueeze(0).expand(T, -1, -1, -1)
-        term = torch.where(pair_mask & (~both_not), term, torch.ones_like(term))
-        term = term.clamp(min=1e-6)
-        log_prod_pairs = torch.sum(torch.log(term), dim=(1,2))             # (T, E)
-        I = 1.0 - torch.exp(log_prod_pairs)                                # (T, E)
+        
+        # Keep only i<j
+        tri = torch.triu(torch.ones(C, C, dtype=torch.bool, device=dev), diagonal=1)       # (C, C)
+        
+        # --- CORRECT pair mask: BOTH atoms must be candidates for the SAME event ---
+        if candidate_mask is not None:
+            cm = candidate_mask.to(dev).bool()         # (C, E)
+            both_cand = (cm.unsqueeze(1) & cm.unsqueeze(0))   # (C, C, E) True iff i and j are both candidates for event e
+        else:
+            both_cand = torch.ones(C, C, self.E, dtype=torch.bool, device=dev)
+        
+        pair_mask = tri.unsqueeze(2) & both_cand       # (C, C, E)
+        pair_mask = pair_mask.unsqueeze(0).expand(T, -1, -1, -1)  # (T, C, C, E)
+        
+        # Apply mask: pairs that are not valid for this event should be neutral (term=1)
+        term = torch.where(pair_mask, term, torch.ones_like(term)).clamp(min=1e-6)
+        
+        # Log-domain product over pairs
+        log_prod_pairs = torch.sum(torch.log(term), dim=(1, 2))   # (T, E)
+        I = 1.0 - torch.exp(log_prod_pairs)                       # (T, E)
 
         # ==== COUNTER: Ctr = (1 - D) * (1 - I) ====
         Ctr = (1.0 - D) * (1.0 - I)
