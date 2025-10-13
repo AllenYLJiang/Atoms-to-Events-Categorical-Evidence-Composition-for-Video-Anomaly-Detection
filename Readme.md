@@ -65,7 +65,9 @@ Format of output labels.pt — frame labels provided by input
 
 Format of output presence.pt → raw per-frame atom scores 
 
-Format of output boundary.pt → per-frame boundary probabilities  
+Format of output boundary.pt → per-frame boundary probabilities 
+
+Note: Actually --labels_csv data/frame_labels.csv is useless and is discarded because we only need video-level labels 
 
 3) **Train role learning** (supervises video-level labels for 6 events):
 ```bash
